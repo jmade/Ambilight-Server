@@ -1,4 +1,6 @@
 import subprocess
+from time import sleep
+
 
 BASE_DIR = '/home/pi/Ambilight/Controls/CEC/'
 
@@ -22,3 +24,5 @@ def tv_power_off():
 
 def tv_power_on():
 	executeCommand('tv_on')
+	sleep(2.0)
+	executeCommand('hdmi_1')

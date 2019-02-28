@@ -86,7 +86,7 @@ def start_ambi():
 	if lights_are_off():
 		cmd = 'cd ~/rpi_ws281x/python && sudo PYTHONPATH=".:build/lib.linux-armv7l-2.7" python ~/Ambilight/lib/python/_ambilight.py'
 		process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-		background_insert(kill_pid,'ambi_light')
+		background_insert('ambi_light')
 		activate_lights('ambi_light')
 	else:
 		print("Light are reporting status: ON.")

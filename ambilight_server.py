@@ -51,6 +51,39 @@ def request_ok(response_dict, success=True):
     return resp
 
 
+def siriResponses():
+    return {
+        'TV Power Off' : 'TV Has Been Powered Off',
+        'TV Power On' : 'TV Has Been Powered On',
+        
+        'Volume Up' : 'The Volume has been increased',
+        'Volume Down' : 'The Volume has been decreased',
+
+        # IR
+        # 'Apple TV' : switch_to_apple_tv,
+        # 'Nintendo Switch' : switch_to_nintendo_switch,
+        # 'PS4' : switch_to_ps4,
+        # 'Input 4' : switch_to_input4,
+
+
+        'Select' : 'ATV Select Pressed',
+   
+        # 
+        'Neopixel Loop ON' : 'Stared Pixel Loop',
+        'Neopixel Loop OFF' : 'Stopped Pixel Loop',
+        'Ambilight ON' : 'Running Amilight',
+        'Ambilight OFF' : 'Stopped Ambilight',
+    }
+
+
+@app.route('/siri', methods=['GET', 'POST'])
+def siri():
+    chosen_action = request.form['action']
+    print(BOLD+YELLOW+"Siri Action: "+RESET+GREEN+chosen_action+RESET)
+    availibleActions()[chosen_action]()
+    message = siriResponses()[chosen_action]
+    return request_ok({ 'serverMessage': message})
+
 # HTML Responses
 @app.route('/action',methods=['POST', 'GET'])
 def action():
@@ -252,6 +285,7 @@ def ambi_app():
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
+    atv_remote('select')
     return request_ok({ 'message': 'Welcome to Amiblight\'s moblie API.'})
 
 

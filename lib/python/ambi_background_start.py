@@ -1,7 +1,6 @@
 # Import the module
 import subprocess
 
-
 def start_loop():
 	# process = subprocess.Popen("bash /home/pi/Ambilight/lib/shell/strip.sh", shell=True, stdout=subprocess.PIPE)
 	process = subprocess.Popen('cd ~/rpi_ws281x/python && sudo PYTHONPATH=".:build/lib.linux-armv7l-2.7" python ~/Ambilight/lib/python/ambi_loop.py', shell=True, stdout=subprocess.PIPE)
