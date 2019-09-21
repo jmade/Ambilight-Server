@@ -9,7 +9,7 @@ def executeCommand(script_name):
 	subprocess.Popen(['bash', generate_cmd(script_name) ])
 
 def executeCommandMany(script_name):
-	subprocess.Popen(['bash', generate_cmd(script_name), '3' ])
+	subprocess.Popen(['bash', generate_cmd(script_name), '2' ])
 
 def executeCommandSeveral(script_name):
 	subprocess.Popen(['bash', generate_cmd(script_name), '7' ])

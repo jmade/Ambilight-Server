@@ -3,8 +3,8 @@ from lib.python.dblib import call_sp, call_sql
 # SELECT * FROM `background` ORDER BY id DESC LIMIT 1
 # SELECT `pid` FROM `background` ORDER BY id DESC LIMIT 1;
 
-def background_insert(jobName):
-	sp = "CALL sp_InsBackground('{0}','{1}')".format("0",jobName)
+def background_insert(pid,jobName):
+	sp = "CALL sp_InsBackground('{0}','{1}')".format(pid,jobName)
 	return call_sp(sp)
 
 def last_kill_pid():

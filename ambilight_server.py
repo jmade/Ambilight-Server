@@ -3,11 +3,19 @@ from time import sleep
 
 from server_lib import pages
 
+import requests
+import os
+
 from lib.python.ambi_ir import hdmi_switch
 from lib.python.atv import atv_remote
 from lib.python.cec import hdmi_1, hdmi_2, hdmi_3, tv_power_on, tv_power_off
 from lib.python.vol import volumeUp, volumeDown, volumeUpTriple, volumeDownTriple, volumeDownMax
 from lib.python.ambi_background import start_loop, kill_loop, start_ambi, kill_ambilight, light_status, light_reading, start_blackout
+
+from lib.python.temp_sensors import read_sensors, sensor_task
+
+# Speakers for the System Volume Control
+from lib.python.speakers import speaker_action
 
 from enum import Enum
 
@@ -49,6 +57,102 @@ def request_ok(response_dict, success=True):
     resp = jsonify(**response_dict)
     resp.status_code = 200
     return resp
+
+# @app.route('/motion/<device>', methods=['GET', 'POST'])
+# def motion(device):
+#     print("Motion Detected From {}".format(device))
+#     return jsonify({ "Message" : "Okay" })
+
+
+@app.route('/motion/<device>/<status>', methods=['GET', 'POST'])
+def motion(device,status):
+    print("Motion {} From {}".format(status,device))
+    resp = jsonify({})
+    resp.status_code = 200
+    return resp
+
+
+# Homebridge Helper
+# Temp and Humidity
+
+@app.route('/temp_stat',methods = ['POST', 'GET'])
+def temp_stat():
+    resp = jsonify(read_sensors('office',True))
+    resp.status_code = 200
+    return resp
+
+
+@app.route('/temp_task',methods = ['POST', 'GET'])
+def temp_task():
+    return sensor_task()
+
+# Rooms
+@app.route('/home_temp/<room>')
+def home_temp_page(room):
+    resp = jsonify(read_sensors(room,True))
+    resp.status_code = 200
+    return resp
+
+
+@app.route('/tv/<action>',methods=['POST', 'GET'])
+def tv_page(action):
+
+    if action == 'powerOn':
+        tv_power_on()
+    elif action == 'powerOff':
+        tv_power_off()
+    elif action == 'switch':
+        switch_to_nintendo_switch()
+    elif action == 'ps4':
+        switch_to_ps4()
+    elif action == 'hdmi1':
+        hdmi_1()
+    elif action == 'atv':
+        switch_to_apple_tv();
+    else:
+        print('nothing came in...')
+    return request_ok({'action':action})
+
+
+# Speaker action
+
+@app.route('/speaker/<action>/',methods=['POST', 'GET'])
+@app.route('/speaker/<action>/<path:amt>',methods=['POST', 'GET'])
+def speaker_page(action,amt=None):
+    return request_ok(
+        speaker_action(action,request,amt)
+    )
+
+
+# Ambilight Homekit Switch
+
+## // if Running in light_status()
+# start_ambi, kill_ambilight
+
+# 192.168.0.8:8080/ambilight/status
+
+@app.route('/ambilight/<action>',methods=['POST', 'GET'])
+def amiblight_page(action):
+
+    if action == 'on':
+        start_ambi()
+        return '1' #request_ok({ 'status' : 1 })
+
+    if action == 'off':
+        kill_ambilight()
+        return '0' #equest_ok({ 'status' : 0 })
+
+    if action == 'status':
+        if 'Running' in light_status():
+            return '1' #request_ok({ 'status' : 1 })
+        else:
+            return '0' #request_ok({ 'status' : 0 })
+
+
+# Sensors
+
+
+
 
 
 def siriResponses():
@@ -115,10 +219,10 @@ def makeIndexOptions():
     start_ambilight = False
     start_loop = False
     show_test = True
-    if LOOP_PID == 0:
-        start_loop = True
-    if AMBI_PID == 0:
-        start_ambilight = True
+    # if LOOP_PID == 0:
+    #     start_loop = True
+    # if AMBI_PID == 0:
+    #     start_ambilight = True
     return (start_ambilight,start_loop,show_test)
 
 # Index
@@ -281,6 +385,32 @@ def ambi_app():
     print("Mobile App - "+BOLD+YELLOW+"Options"+RESET)
     sleep(1.0)
     return createOptionsResponse()
+
+####
+####
+####
+
+# Volume Up
+@app.route('/volUp', methods=['GET', 'POST'])
+def volUp():
+    volumeUp()
+    return request_ok({ 'message': 'Volume Turned Up!'})
+
+# Volume Down
+@app.route('/volDown', methods=['GET', 'POST'])
+def volDown():
+    volumeDown()
+    return request_ok({ 'message': 'Volume Turned Down!'})
+
+
+# Apple TV Pairing Code.
+@app.route('/remote_code', methods=['GET', 'POST'])
+def remote_code():
+    return request_ok({ 'pairing_guid': '1DBE333DDDAE5FB'})
+
+
+
+
 
 
 @app.route('/test', methods=['GET', 'POST'])

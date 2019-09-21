@@ -6,14 +6,17 @@ DB_PASS = 'tabard5]deathblows'
 DB_USER = 'app'
 DB_NAME = 'ambi'
 
-def makeConnection():
+
+def makeConnection(db_name=DB_NAME):
 	return pymysql.connect(
 		host='localhost',
-		user=DB_USER,password=DB_PASS,
-		db=DB_NAME,
+		user=DB_USER,
+		password=DB_PASS,
+		db=db_name,
 		charset='utf8mb4',
 		cursorclass=pymysql.cursors.DictCursor
 		)
+
 
 def call_sp(sql):
 	connection = makeConnection()
@@ -27,6 +30,21 @@ def call_sp(sql):
 	if result is None:
 		result = 0
 	return result
+	
+
+def sensorDB(sql):
+	connection = makeConnection(db_name='Sensor')
+	try:
+		with connection.cursor() as cursor:
+			cursor.execute(sql)
+			result = cursor.fetchall()
+		connection.commit()
+	finally:
+		connection.close()
+	if result is None:
+		result = 0
+	return result
+
 
 def call_sql(raw_sql:str):
 	connection = makeConnection()
